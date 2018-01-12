@@ -68,5 +68,9 @@ server {
   }
 }
 ```
+### IIS on Windows Configuration with Subpath
+
+
+root_url = %(protocol)s://%(domain)s:/grafana
 
 
