@@ -68,9 +68,25 @@ server {
   }
 }
 ```
-### IIS on Windows Configuration with Subpath
+### IIS URL Rewrite Rule (Windows) with Subpath
 
+IIS requires that the URL Rewrite module is installed.
 
-root_url = %(protocol)s://%(domain)s:/grafana
+Given:
+- subpath `grafana`
+- Grafana installed on `http://localhost:3000`
+- server config:
+    ```bash
+    [server]
+    domain = localhost:8080
+    root_url = %(protocol)s://%(domain)s:/grafana
+    ```
+
+Create an Inbound Rule for the parent website (localhost:8080 in this example) with the following settings:
+- pattern: `grafana(/)?(.*)`
+- check the `Ignore case` checkbox
+- rewrite url set to `http://localhost:3000/{R:2}`
+- check the `Append query string` checkbox
+- check the `Stop processing of subsequent rules` checkbox
 
 
