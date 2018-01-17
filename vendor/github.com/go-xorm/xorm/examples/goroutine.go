@@ -10,6 +10,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// User describes a user
 type User struct {
 	Id   int64
 	Name string
@@ -24,7 +25,7 @@ func mysqlEngine() (*xorm.Engine, error) {
 	return xorm.NewEngine("mysql", "root:@/test?charset=utf8")
 }
 
-var u *User = &User{}
+var u = &User{}
 
 func test(engine *xorm.Engine) {
 	err := engine.CreateTables(u)
@@ -58,7 +59,7 @@ func test(engine *xorm.Engine) {
 					} else if x+j < 16 {
 						_, err = engine.Insert(&User{Name: "xlw"})
 					} else if x+j < 32 {
-						_, err = engine.Id(1).Delete(u)
+						_, err = engine.ID(1).Delete(u)
 					}
 					if err != nil {
 						fmt.Println(err)
