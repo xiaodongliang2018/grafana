@@ -122,10 +122,10 @@
   revision = "b8e286a0dba8f4999042d6b258daf51b31d08938"
 
 [[projects]]
+  branch = "master"
   name = "github.com/go-sql-driver/mysql"
   packages = ["."]
-  revision = "a0583e0143b1624142adab07e0e97fe106d99561"
-  version = "v1.3"
+  revision = "2cc627ac8defc45d65066ae98f898166f580f9a4"
 
 [[projects]]
   name = "github.com/go-stack/stack"
@@ -409,7 +409,7 @@
 
 [[projects]]
   name = "google.golang.org/appengine"
-  packages = [".","internal","internal/app_identity","internal/base","internal/datastore","internal/log","internal/modules","internal/remote_api","internal/urlfetch","urlfetch"]
+  packages = [".","cloudsql","internal","internal/app_identity","internal/base","internal/datastore","internal/log","internal/modules","internal/remote_api","internal/urlfetch","urlfetch"]
   revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
   version = "v1.0.0"
 
@@ -476,6 +476,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5a1a460e39787dfd88c885e8d635d7e89e7ccded0712ac39fba31f8ca6222b15"
+  inputs-digest = "bad934a0a6219667a4c7f4b00e7ec55165698b48a1c7b9254beeb952032c3bf9"
   solver-name = "gps-cdcl"
   solver-version = 1
