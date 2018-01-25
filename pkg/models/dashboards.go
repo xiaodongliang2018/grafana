@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -140,7 +141,13 @@ func (dash *Dashboard) GetString(prop string, defaultValue string) string {
 // UpdateSlug updates the slug
 func (dash *Dashboard) UpdateSlug() {
 	title := dash.Data.Get("title").MustString()
-	dash.Slug = SlugifyTitle(title)
+	dashSlug := SlugifyTitle(title)
+
+	if dash.FolderId > 0 {
+		dash.Slug = fmt.Sprintf("%d-%s", dash.FolderId, dashSlug)
+	} else {
+		dash.Slug = dashSlug
+	}
 }
 
 func SlugifyTitle(title string) string {

@@ -1,6 +1,7 @@
 package sqlstore
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/go-xorm/xorm"
@@ -26,7 +27,7 @@ func TestDashboardDataAccess(t *testing.T) {
 
 			Convey("Should return dashboard model", func() {
 				So(savedDash.Title, ShouldEqual, "test dash 23")
-				So(savedDash.Slug, ShouldEqual, "test-dash-23")
+				So(savedDash.Slug, ShouldEqual, fmt.Sprintf("%d-test-dash-23", savedFolder.Id))
 				So(savedDash.Id, ShouldNotEqual, 0)
 				So(savedDash.IsFolder, ShouldBeFalse)
 				So(savedDash.FolderId, ShouldBeGreaterThan, 0)
@@ -40,7 +41,7 @@ func TestDashboardDataAccess(t *testing.T) {
 
 			Convey("Should be able to get dashboard", func() {
 				query := m.GetDashboardQuery{
-					Slug:  "test-dash-23",
+					Slug:  fmt.Sprintf("%d-test-dash-23", savedFolder.Id),
 					OrgId: 1,
 				}
 
@@ -48,7 +49,7 @@ func TestDashboardDataAccess(t *testing.T) {
 				So(err, ShouldBeNil)
 
 				So(query.Result.Title, ShouldEqual, "test dash 23")
-				So(query.Result.Slug, ShouldEqual, "test-dash-23")
+				So(query.Result.Slug, ShouldEqual, fmt.Sprintf("%d-test-dash-23", savedFolder.Id))
 				So(query.Result.IsFolder, ShouldBeFalse)
 			})
 
@@ -79,7 +80,7 @@ func TestDashboardDataAccess(t *testing.T) {
 			})
 
 			Convey("Should not be able to overwrite dashboard in another org", func() {
-				query := m.GetDashboardQuery{Slug: "test-dash-23", OrgId: 1}
+				query := m.GetDashboardQuery{Slug: savedDash.Slug, OrgId: 1}
 				GetDashboard(&query)
 
 				cmd := m.SaveDashboardCommand{
@@ -157,9 +158,25 @@ func TestDashboardDataAccess(t *testing.T) {
 				})
 			})
 
-			Convey("Should not be able to save dashboard with same name", func() {
+			Convey("Should not be able to save folder with same name", func() {
 				cmd := m.SaveDashboardCommand{
-					OrgId: 1,
+					OrgId:    1,
+					IsFolder: true,
+					Dashboard: simplejson.NewFromAny(map[string]interface{}{
+						"id":    nil,
+						"title": "1 test dash folder",
+						"tags":  []interface{}{},
+					}),
+				}
+
+				err := SaveDashboard(&cmd)
+				So(err, ShouldNotBeNil)
+			})
+
+			Convey("Should not be able to save dashboard with same name in the same folder", func() {
+				cmd := m.SaveDashboardCommand{
+					OrgId:    1,
+					FolderId: savedFolder.Id,
 					Dashboard: simplejson.NewFromAny(map[string]interface{}{
 						"id":    nil,
 						"title": "test dash 23",
@@ -168,6 +185,34 @@ func TestDashboardDataAccess(t *testing.T) {
 				}
 
 				err := SaveDashboard(&cmd)
+				So(err, ShouldNotBeNil)
+			})
+
+			Convey("Should not be able to save dashboard with same name in root folder", func() {
+				cmd := m.SaveDashboardCommand{
+					OrgId:    1,
+					FolderId: 0,
+					Dashboard: simplejson.NewFromAny(map[string]interface{}{
+						"id":    nil,
+						"title": "test dash in root",
+						"tags":  []interface{}{},
+					}),
+				}
+
+				err := SaveDashboard(&cmd)
+				So(err, ShouldBeNil)
+
+				cmd = m.SaveDashboardCommand{
+					OrgId:    1,
+					FolderId: 0,
+					Dashboard: simplejson.NewFromAny(map[string]interface{}{
+						"id":    nil,
+						"title": "test dash in root",
+						"tags":  []interface{}{},
+					}),
+				}
+
+				err = SaveDashboard(&cmd)
 				So(err, ShouldNotBeNil)
 			})
 
@@ -495,6 +540,8 @@ func insertTestDashboard(title string, orgId int64, folderId int64, isFolder boo
 	err := SaveDashboard(&cmd)
 	So(err, ShouldBeNil)
 
+	cmd.Result.Data.Set("id", cmd.Result.Id)
+
 	return cmd.Result
 }
 
@@ -512,6 +559,8 @@ func insertTestDashboardForPlugin(title string, orgId int64, folderId int64, isF
 
 	err := SaveDashboard(&cmd)
 	So(err, ShouldBeNil)
+
+	cmd.Result.Data.Set("id", cmd.Result.Id)
 
 	return cmd.Result
 }
